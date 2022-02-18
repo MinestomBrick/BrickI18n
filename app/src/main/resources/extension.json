@@ -1,0 +1,13 @@
+{
+  "entrypoint": "org.minestombrick.i18n.app.BrickI18n",
+  "name": "BrickI18n",
+  "version": "1.0.0",
+  "externalDependencies": {
+    "repositories": [
+      {"name": "Sonatype", "url": "https://oss.sonatype.org/content/repositories/snapshots/"}
+    ],
+    "artifacts": [
+      "net.kyori:adventure-text-minimessage:4.1.0-SNAPSHOT"
+    ]
+  }
+}

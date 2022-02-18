@@ -1,5 +1,12 @@
 plugins {
     id 'java'
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.minestombrick.chat.app.BrickChat'
+    }
 }
 
 repositories {
@@ -22,4 +29,17 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+shadowJar {
+    archiveClassifier.set("")
+    archiveBaseName.set("${rootProject.name}")
+    archiveVersion.set("${rootProject.version}")
+
+    doLast {
+        copy {
+            from "build/libs/" + archiveFileName.get()
+            into "../../server/extensions"
+        }
+    }
 }

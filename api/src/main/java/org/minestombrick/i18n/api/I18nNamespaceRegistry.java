@@ -1,7 +1,7 @@
-package org.minestombrick.i18n.api.translation;
+package org.minestombrick.i18n.api;
 
 import org.jetbrains.annotations.NotNull;
-import org.minestombrick.i18n.api.translation.namespace.I18nNamespace;
+import org.minestombrick.i18n.api.namespace.I18nNamespace;
 
 public interface I18nNamespaceRegistry {
 

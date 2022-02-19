@@ -3,9 +3,7 @@ package org.minestombrick.i18n.tests;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.junit.jupiter.api.Test;
-import org.minestombrick.i18n.api.translation.I18nNamespaceRegistry;
-import org.minestombrick.i18n.api.translation.namespace.I18nNamespace;
-import org.minestombrick.i18n.app.manager.DefaultINamespaceRegistry;
+import org.minestombrick.i18n.api.namespace.I18nNamespace;
 
 import java.util.Locale;
 

@@ -4,6 +4,7 @@ An extension for [Minestom](https://github.com/Minestom/Minestom) with a transla
 
 ## API
 
+### Maven
 ```
 repositories {
     maven { url "https://repo.jorisg.com/snapshots" }
@@ -16,8 +17,11 @@ dependencies {
 }
 ```
 
+### Usage
 
-Usage
+Check the [javadocs](https://minestombrick.github.io/BrickI18n/)
+
+#### Examples
 
 ```java
 // Initialize
@@ -38,7 +42,3 @@ resources/languages/en.json
     "welcome": "Welcome to the server {0}!",
 }
 ```
-
-Check the [javadocs](https://minestombrick.github.io/BrickI18n/)
-
-

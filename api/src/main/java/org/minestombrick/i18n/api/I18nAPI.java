@@ -1,6 +1,6 @@
-package org.minestombrick.i18n.api.translation;
+package org.minestombrick.i18n.api;
 
-import org.minestombrick.i18n.api.translation.namespace.I18nNamespace;
+import org.minestombrick.i18n.api.namespace.I18nNamespace;
 
 public class I18nAPI {
 

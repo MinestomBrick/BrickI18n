@@ -2,8 +2,8 @@ package org.minestombrick.i18n.app.manager;
 
 import net.minestom.server.extensions.ExtensionClassLoader;
 import org.jetbrains.annotations.NotNull;
-import org.minestombrick.i18n.api.translation.I18nNamespaceRegistry;
-import org.minestombrick.i18n.api.translation.namespace.I18nNamespace;
+import org.minestombrick.i18n.api.I18nNamespaceRegistry;
+import org.minestombrick.i18n.api.namespace.I18nNamespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

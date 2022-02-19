@@ -1,4 +1,4 @@
-package org.minestombrick.i18n.api.translation.namespace;
+package org.minestombrick.i18n.api.namespace;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;

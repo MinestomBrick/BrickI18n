@@ -1,4 +1,4 @@
-package org.minestombrick.i18n.api.translation.namespace;
+package org.minestombrick.i18n.api.namespace;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

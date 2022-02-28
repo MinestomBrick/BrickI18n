@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -31,7 +32,7 @@ public abstract class ComponentRenderer extends TranslatableComponentRenderer<Lo
     protected @NotNull Component renderTranslatable(@NotNull TranslatableComponent component, @NotNull Locale context) {
         final @Nullable MessageFormat format = this.translate(component.key(), context);
         if ( format == null ) {
-            return super.render(component, context);
+            return Component.text(component.key());
         }
 
         Component result = MiniMessage.get().parse(format.toPattern());

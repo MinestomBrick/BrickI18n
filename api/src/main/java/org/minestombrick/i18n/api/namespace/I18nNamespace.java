@@ -1,5 +1,6 @@
 package org.minestombrick.i18n.api.namespace;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.kyori.adventure.key.Key;
@@ -13,6 +14,7 @@ import net.minestom.server.extensions.Extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,10 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.stream.Stream;
@@ -111,6 +110,19 @@ public class I18nNamespace {
     // LOADING
 
     public final void loadValues(Extension extension, String pathToResources) {
+        // load files from data directory (highest priority)
+        File directory = extension.getDataDirectory().resolve(pathToResources).toFile();
+        if ( directory.exists() || directory.mkdirs() ) {
+            for (File file : directory.listFiles() ) {
+                try {
+                    loadValues(file.toPath());
+                } catch (IOException ex) {
+                    throw new RuntimeException("Cannot read resource '" + file.getName() + "'", ex);
+                }
+            }
+        }
+
+        // look for embeded files
         URL url = extension.getOrigin().getClassLoader().getResource(pathToResources);
         if (url == null) {
             throw new RuntimeException("Resource not found.");
@@ -123,37 +135,32 @@ public class I18nNamespace {
             throw new RuntimeException("Invalid resource path.", e);
         }
 
-        // load files from in jar (lowest priority)
-        Set<Path> paths = new HashSet<>();
+        // load embedded files from jar (lowest priority)
         try (FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
-            Stream<Path> pathStream = Files.walk(fs.getPath(pathToResources));
+            Path root = fs.getPath(pathToResources);
+            Stream<Path> pathStream = Files.walk(root);
             for (Iterator<Path> it = pathStream.iterator(); it.hasNext(); ) {
                 Path path = it.next();
                 if (!path.getFileName().toString().contains(".")) {
                     continue;
                 }
 
-                paths.add(path);
+
+                Path targetFile = extension.getDataDirectory().resolve(pathToResources).resolve(root.relativize(path).toString());
+                if ( !targetFile.toFile().exists() ) {
+                    try (InputStream is = path.toUri().toURL().openStream()) {
+                        Files.createDirectories(targetFile.getParent());
+                        Files.copy(is, targetFile, StandardCopyOption.REPLACE_EXISTING);
+                    } catch (IOException ex) {
+                        LOGGER.warn("Cannot save packaged resource '" + path + "' of extension '" + extension.getOrigin().getName() + "'.");
+                    }
+                    continue;
+                }
+
                 loadValues(path);
             }
         } catch (IOException e) {
             throw new RuntimeException("Cannot traverse files of given path.", e);
-        }
-
-        // load files from data directory (highest priority)
-        for (Path path : paths) {
-            Path target = Path.of(pathToResources, path.getFileName().toString()); // change path provider
-            Path targetFile = extension.getDataDirectory().resolve(target);
-            try {
-                if (!Files.exists(targetFile) && !extension.savePackagedResource(targetFile)) {
-                    LOGGER.warn("Cannot save packaged resource '" + target + "' of extension '" + extension.getOrigin().getName() + "'.");
-                    continue;
-                }
-
-                loadValues(targetFile);
-            } catch (IOException ex) {
-                throw new RuntimeException("Cannot read resource '" + path + "'", ex);
-            }
         }
     }
 
@@ -182,7 +189,11 @@ public class I18nNamespace {
                 InputStreamReader isr = new InputStreamReader(inputStream)
         ) {
             JsonObject config = JsonParser.parseReader(isr).getAsJsonObject();
-            registry.registerAll(locale, config.keySet(), key -> new MessageFormat(config.get(key).getAsString()));
+            for (Map.Entry<String, JsonElement> entry : config.entrySet()) {
+                if ( !registry.contains(entry.getKey()) ) {
+                    registry.register(entry.getKey(), locale, new MessageFormat(entry.getValue().getAsString()));
+                }
+            }
         }
     }
 

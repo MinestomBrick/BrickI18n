@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -31,15 +30,15 @@ public abstract class ComponentRenderer extends TranslatableComponentRenderer<Lo
     @Override
     protected @NotNull Component renderTranslatable(@NotNull TranslatableComponent component, @NotNull Locale context) {
         final @Nullable MessageFormat format = this.translate(component.key(), context);
-        if ( format == null ) {
+        if (format == null) {
             return Component.text(component.key());
         }
 
-        Component result = MiniMessage.get().parse(format.toPattern());
+        Component result = MiniMessage.miniMessage().deserialize(format.toPattern());
         final List<Component> args = component.args();
-        for ( int i = 0; i < args.size(); i++ ) {
+        for (int i = 0; i < args.size(); i++) {
             final int index = i;
-            result = result .replaceText(builder -> builder.match("(\\{[" + Pattern.quote(index + "") + "]})")
+            result = result.replaceText(builder -> builder.match("(\\{[" + Pattern.quote(index + "") + "]})")
                     .replacement((matchResult, textbuilder) -> args.get(index)));
         }
 

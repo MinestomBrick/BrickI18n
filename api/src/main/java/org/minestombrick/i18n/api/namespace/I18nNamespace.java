@@ -11,6 +11,7 @@ import net.minestom.server.adventure.Localizable;
 import net.minestom.server.command.CommandSender;
 import net.minestom.server.entity.Player;
 import net.minestom.server.extensions.Extension;
+import org.minestombrick.i18n.api.I18nAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,11 +35,11 @@ public class I18nNamespace {
 
     private final Logger LOGGER = LoggerFactory.getLogger(I18nNamespace.class);
 
-    private final TranslationRegistry registry;
-    private final Locale defaultLocale;
-    private final String id;
+    protected final TranslationRegistry registry;
+    protected final Locale defaultLocale;
+    protected final String id;
 
-    private final ComponentRenderer renderer;
+    protected final ComponentRenderer renderer;
 
     public I18nNamespace(String id, Locale defaultLocale) {
         final Key key = Key.key("i18n:" + id.toLowerCase());
@@ -60,8 +61,12 @@ public class I18nNamespace {
         return id;
     }
 
-    public final Component translate(Locale locale, TranslatableComponent component) {
-        return renderer.render(component, locale);
+    public Component translate(Locale locale, TranslatableComponent component) {
+        if (registry.contains(component.key()) ) {
+            return renderer.render(component, locale);
+        } else {
+            return I18nAPI.global().translate(locale, component);
+        }
     }
 
     public final Component translate(Localizable localizable, TranslatableComponent component) {

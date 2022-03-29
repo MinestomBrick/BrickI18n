@@ -16,6 +16,10 @@ public class I18nAPI {
         return namespaceRegistry;
     }
 
+    public static I18nNamespace global() {
+        return get().byId("global");
+    }
+
     public static I18nNamespace get(String namespace) {
         return get().byId(namespace);
     }

@@ -24,7 +24,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.*;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public class I18nNamespace {
@@ -72,15 +75,11 @@ public class I18nNamespace {
     }
 
     public final Component translate(Localizable localizable, String key, Object... args) {
-        Component[] cargs = new Component[args.length];
-        for (int i = 0; i < args.length; i++) {
-            cargs[i] = args[i] instanceof Component ca ? ca : Component.text(args[i].toString());
-        }
-        return translate(localizable, Component.translatable(key).args(cargs));
+        return translate(localizable, translatable(key, args));
     }
 
     public final Component translate(Localizable localizable, String key, Component... args) {
-        return translate(localizable, Component.translatable(key).args(args));
+        return translate(localizable, translatable(key, args));
     }
 
     public final void send(CommandSender sender, TranslatableComponent component) {
@@ -96,15 +95,36 @@ public class I18nNamespace {
     }
 
     public final void send(CommandSender sender, String key, Object... args) {
-        Component[] cargs = new Component[args.length];
-        for (int i = 0; i < args.length; i++) {
-            cargs[i] = args[i] instanceof Component ca ? ca : Component.text(args[i].toString());
-        }
-        send(sender, Component.translatable(key).args(cargs));
+        send(sender, translatable(key, args));
     }
 
     public final void send(CommandSender sender, String key, Component... args) {
-        send(sender, Component.translatable(key).args(args));
+        send(sender, translatable(key, args));
+    }
+
+    private TranslatableComponent translatable(String key, Object... args) {
+        Component[] cargs = new Component[args.length];
+        for (int i = 0; i < args.length; i++) {
+            if (args[i] == null) {
+                cargs[i] = Component.text("null");
+            } else if (args[i] instanceof Component comp) {
+                cargs[i] = comp;
+            } else {
+                cargs[i] = Component.text(args[i].toString());
+            }
+        }
+
+        return Component.translatable(key).args(cargs);
+    }
+
+    private TranslatableComponent translatable(String key, Component... args) {
+        for (int i = 0; i < args.length; i++) {
+            if (args[i] == null) {
+                args[i] = Component.text("null");
+            }
+        }
+
+        return Component.translatable(key).args(args);
     }
 
     // LOADING
@@ -112,8 +132,8 @@ public class I18nNamespace {
     public final void loadValues(Extension extension, String pathToResources) {
         // load files from data directory (highest priority)
         File directory = extension.getDataDirectory().resolve(pathToResources).toFile();
-        if ( directory.exists() || directory.mkdirs() ) {
-            for (File file : directory.listFiles() ) {
+        if (directory.exists() || directory.mkdirs()) {
+            for (File file : directory.listFiles()) {
                 try {
                     loadValues(file.toPath());
                 } catch (IOException ex) {
@@ -147,7 +167,7 @@ public class I18nNamespace {
 
 
                 Path targetFile = extension.getDataDirectory().resolve(pathToResources).resolve(root.relativize(path).toString());
-                if ( !targetFile.toFile().exists() ) {
+                if (!targetFile.toFile().exists()) {
                     try (InputStream is = path.toUri().toURL().openStream()) {
                         Files.createDirectories(targetFile.getParent());
                         Files.copy(is, targetFile, StandardCopyOption.REPLACE_EXISTING);
@@ -190,7 +210,7 @@ public class I18nNamespace {
         ) {
             JsonObject config = JsonParser.parseReader(isr).getAsJsonObject();
             for (Map.Entry<String, JsonElement> entry : config.entrySet()) {
-                if ( !registry.contains(entry.getKey()) ) {
+                if (!registry.contains(entry.getKey())) {
                     registry.register(entry.getKey(), locale, new MessageFormat(entry.getValue().getAsString()));
                 }
             }
